@@ -21,67 +21,12 @@ import os.path as path
 import datetime
 
 PERIPHERALS = ["USART", "UART", "LPUART", "SPI", "I2C", "ETH", "SDMMC", "CAN", "USB", "SDIO", "FDCAN"]
-MSP_FOLDER = {
+CONTEXT = {
     "CortexM33S" : "Secure",
     "CortexM33NS": "NonSecure",
     "CortexM4"   : "CM4",
     "CortexM7"   : "CM7",
 }
-
-# # Get DMA configuration
-# def get_dma_cfg(f_ioc, peripheral):
-#     dma_list = []
-#     try:
-#         f_ioc.seek(0)
-#         for line in f_ioc.readlines():
-#             line = line.rstrip()
-
-#             # GPDMA Handling (STM32U5): GPDMA_Channelx
-#             if line.startswith("GPDMA"):
-#                 if line.find("_REQUEST_") != -1 and line.find(peripheral) != -1:
-#                     dma = {}
-
-#                     # *_DMA_INSTANCE
-#                     key = line.split("_REQUEST_")[1] + "_DMA_INSTANCE"
-#                     tmp_str1 = line.split(".")[0]
-#                     tmp_str2 = line.split("REQUEST_GPDMACH")[1]
-#                     tmp_str2 = tmp_str2.split("=")[0]
-#                     val = f"{tmp_str1}_Channel{tmp_str2}"
-#                     dma[key] = val
-
-#                     # *_DMA_REQUEST
-#                     key = line.split("_REQUEST_")[1] + "_DMA_REQUEST"
-#                     val = line.split("=")[1]
-#                     dma[key] = val
-
-#                     dma_list.append(dma)
-
-#             # BDMA Handling (STM32H7): BDMA_Channelx or DMAx_Streamy
-#             elif line.startswith("Bdma.") or line.startswith("Dma."):
-#                 if line.find(".Instance") != -1:
-#                     if line.find(peripheral) != -1:
-
-#                         dma = {}
-
-#                         dma_base = line.split(".")[0].upper()
-
-#                         # *_DMA_INSTANCE
-#                         key = line.split(".")[1] + "_DMA_INSTANCE"
-#                         val = line.split("=")[1]
-#                         dma[key] = val
-
-#                         # *_DMA_REQUEST
-#                         key = line.split(".")[1] + "_DMA_REQUEST"
-#                         tmp_str = line.split(".")[1]
-#                         val = f"{dma_base}_REQUEST_{tmp_str}"
-#                         dma[key] = val
-
-#                         dma_list.append(dma)
-#     except Exception as e:
-#         sys.exit(f"Error: {e}")
-
-#     return dma_list
-
 
 # Return digit at the end of string
 def get_digit_at_end (str):
@@ -133,13 +78,6 @@ def get_pin_configuration (f_msp, peripheral, pin, label):
         port = pin.split("P")[1].split(pin_num)[0]
         gpio_port = f"GPIO{port}"
 
-        # # Find *mspInit function:
-        # #   Example: void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
-        # str = f"HAL_{peripheral_root}_MspInit"
-        # for line in f_msp.readlines():
-        #     if line.find(str) != -1:
-        #         break
-
         # Find *->Instance==....:
         #   Example: if(hi2c->Instance==I2C1)
         valid_section = False
@@ -183,14 +121,13 @@ def get_pin_configuration (f_msp, peripheral, pin, label):
 
     return info_empty
 
-
 # Get pins
 def get_pins(f_ioc, f_msp, peripheral):
     pins_name={}
     pins_label = {}
     pins_info = {}
     try:
-        
+
         # Find peripheral Pins signal in .ioc.
         # Example: PA11.Signal=USART1_TX
         f_ioc.seek(0)
@@ -200,25 +137,26 @@ def get_pins(f_ioc, f_msp, peripheral):
             if line.find(find_phrase) != -1 and not line.startswith("VP_"):
                 pin = line.split(".Signal=")
                 pins_name[pin[0]] = pin[1]
-                
+
         # Check if pin has a label and save the label
         # Example: PA11.GPIO_Label=label
-        f_ioc.seek(0)        
+        f_ioc.seek(0)
         for line in f_ioc.readlines():
             line = line.rstrip()
             for pin in pins_name:
                 if line.find(f"{pin}.GPIO_Label") != -1:
                     value = line.split("=")[1].lstrip().split(" ")[0]
                     pins_label[pin] = value
-                    
+
         # Get additional information for the pin
         for pin in pins_name:
-            # Pin name: Remove right part, that starts with: " ", "\\", "_" or "-"
+            # Pin name: Remove right part, that starts with: " ", "\\", "(" "_" or "-"
             p = pin.split("\\")[0]
+            p = p.split("(")[0]
             p = p.split(" ")[0]
             p = p.split("_")[0]
-            p = p.split("-")[0]    
-                
+            p = p.split("-")[0]
+
             if len(pins_label) != 0:
                 label = pins_label.get(pin, "")
             else:
@@ -277,6 +215,34 @@ def get_contexts(f_ioc):
 
     return contexts
 
+# Get main.c location
+def get_main_location(f_ioc):
+    main = ""
+    try:
+        f_ioc.seek(0)
+        for line in f_ioc.readlines():
+            line = line.rstrip()
+            if line.startswith("ProjectManager.MainLocation="):
+                main = path.normpath(line.split('=')[1])
+                break
+    except Exception as e:
+        sys.exit(f"Error: {e}")
+    return main
+
+# Get Device Family
+def get_device_family(f_ioc):
+    family = ""
+    try:
+        f_ioc.seek(0)
+        for line in f_ioc.readlines():
+            line = line.rstrip()
+            if line.startswith("Mcu.Family=STM32"):
+                family = line.split('=')[1]
+                break
+    except Exception as e:
+        sys.exit(f"Error: {e}")
+    return family
+
 # Create Define
 def create_define(name, value):
     invalid_chars = ['=', ' ', '/', '(', ')', '[', ']', '\\', '-']
@@ -288,7 +254,6 @@ def create_define(name, value):
     name = f"MX_{name}"
     name = name.ljust(39)
     define = f"#define {name}{value}"
-
     return define
 
 # Write Header to mx device
@@ -301,12 +266,13 @@ def mx_device_write_header (f_mx_device, file_name):
  * File Name   : {file_name}
  * Date        : {dt_string}
  * Description : STM32Cube MX parameter definitions
- * Note        : This file is generated by STM32CubeMX (DO NOT EDIT!)
+ * Note        : This file is generated with a generator out of the
+ *               STM32CubeMX project and its generated files (DO NOT EDIT!)
  ******************************************************************************/
- 
+
  #ifndef __MX_DEVICE_H
  #define __MX_DEVICE_H
-   
+
  """
 
         f_mx_device.write(str)
@@ -316,6 +282,14 @@ def mx_device_write_header (f_mx_device, file_name):
 
 # Write peripheral configuration to mx device
 def mx_device_write_peripheral_cfg (f_mx_device, peripheral, vmode, pins):
+    pin_define_name = {
+        "Pin"       : "GPIO_Pin",
+        "Port"      : "GPIOx",
+        "Mode"      : "GPIO_Mode",
+        "Pull"      : "GPIO_PuPd",
+        "Speed"     : "GPIO_Speed",
+        "Alternate" : "GPIO_AF"
+    }
     try:
         str = f"\n/*------------------------------ {peripheral}"
         str = str.ljust(49)
@@ -323,32 +297,20 @@ def mx_device_write_peripheral_cfg (f_mx_device, peripheral, vmode, pins):
         str += create_define(peripheral, "1") + "\n\n"
         if vmode != "":
             str += "/* Virtual mode */\n"
-            peripheral_vm = f"{peripheral}_VM"
-            str += create_define(peripheral_vm, vmode) + "\n\n"
+            str += create_define(f"{peripheral}_VM", vmode) + "\n"
+            str += create_define(f"{peripheral}_{vmode}", "1") + "\n\n"
 
         if len(pins) != 0:
             str += "/* Pins */\n"
             for pin in pins:
                 str += f"\n/* {pin} */\n"
-                str += create_define(pin, pins[pin][0]) + "\n"
+                str += create_define(f"{pin}_Pin", pins[pin][0]) + "\n"
                 for pin_info in pins[pin][1]:
-                    str += create_define(f"{pin}_{pin_info}", pins[pin][1][pin_info]) + "\n"
+                    str += create_define(f"{pin}_{pin_define_name[pin_info]}", pins[pin][1][pin_info]) + "\n"
         f_mx_device.write(str)
 
     except Exception as e:
         sys.exit(f"Error: {e}")
-
-
-# find *_hal_msp.c files
-def find_hal_msp_files(start_dir):
-    msp_files = []
-    for dirpath, dirnames, filenames in os.walk(start_dir):
-        for filename in filenames:
-            if filename.endswith('_hal_msp.c'):
-                msp_files.append(path.relpath( path.join(dirpath, filename)))
-
-    return msp_files
-
 
 # Validate file
 def validate_file(file):
@@ -374,7 +336,6 @@ def main():
     ioc = path.normpath(f"{args.ioc}")
     work_dir = path.dirname(ioc)
     work_dir_abs = path.abspath(work_dir)
-    msp_list = find_hal_msp_files(work_dir_abs)
 
     try:
         # Open STM32CubeMx project file
@@ -383,33 +344,35 @@ def main():
         sys.exit(f"Error: {e}")
 
     contexts = get_contexts(f_ioc)
+    device_family = get_device_family(f_ioc).lower()
+    msp_name = f"{device_family}xx_hal_msp.c"
 
     project_index = 1
     if contexts:
         for context  in contexts:
             try:
-                # Find and open hal_msp
-                msp = ""
-                for msp_x in msp_list:
-                    folders = msp_x.split(os.sep)
-                    for folder in folders:
-                        if folder == MSP_FOLDER[context]:
-                            msp = msp_x
-                            break
-                    if msp != "":
-                        break
+                context_folder = CONTEXT.get(context)
+                if context_folder is None:
+                    print(f"Can not find {msp_name}")
+                    return
+
+
+                # Open hal_msp
+                msp = path.join(work_dir_abs, context_folder)
+                msp = path.join(msp, get_main_location(f_ioc))
+                msp = path.join(msp, msp_name)
 
                 f_msp = open(msp, "r")
 
                 # Open MX_Device.h
-                f_name = "MX_Device.h" 
+                f_name = "MX_Device.h"
                 f_path = path.join(path.dirname(work_dir), "drv_cfg")
                 f_path = path.join(f_path, f"cproject_{project_index}")
                 if path.exists(f_path) == False:
                     os.makedirs(f_path)
                 f_path = path.join(f_path, f_name)
                 f_mx_device = open(f_path, "w")
-                
+
                 project_index += 1
             except Exception as e:
                 sys.exit(f"Error: {e}")
@@ -427,11 +390,15 @@ def main():
 
     else:
         try:
-            # Find and open hal_msp
-            f_msp = open(msp_list[0], "r")
-           
+            # Open hal_msp
+            msp_folder = get_main_location(f_ioc)
+            msp = path.join(work_dir_abs, get_main_location(f_ioc))
+            msp = path.join(msp, msp_name)
+
+            f_msp = open(msp, "r")
+
             # Open MX_Device.h
-            f_name = "MX_Device.h" 
+            f_name = "MX_Device.h"
             f_path = path.join(path.dirname(work_dir), "drv_cfg")
             f_path = path.join(f_path, f"cproject_{project_index}")
             if path.exists(f_path) == False:
