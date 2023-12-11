@@ -1,8 +1,8 @@
 /******************************************************************************
  * File Name   : MX_Device.h
- * Date        : 05/12/2023 10:00:57
+ * Date        : 11/12/2023 14:20:38
  * Description : STM32Cube MX parameter definitions
- * Note        : This file is generated with a generator out of the 
+ * Note        : This file is generated with a generator out of the
  *               STM32CubeMX project and its generated files (DO NOT EDIT!)
  ******************************************************************************/
 

@@ -53,7 +53,6 @@ UART_HandleTypeDef huart2;
 
 /* Private function prototypes -----------------------------------------------*/
 static void MX_GPIO_Init(void);
-static void MX_MEMORYMAP_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_SDMMC2_MMC_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -91,7 +90,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_MEMORYMAP_Init();
   MX_I2C2_Init();
   MX_SDMMC2_MMC_Init();
   MX_USART2_UART_Init();
@@ -155,27 +153,6 @@ static void MX_I2C2_Init(void)
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
-
-}
-
-/**
-  * @brief MEMORYMAP Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_MEMORYMAP_Init(void)
-{
-
-  /* USER CODE BEGIN MEMORYMAP_Init 0 */
-
-  /* USER CODE END MEMORYMAP_Init 0 */
-
-  /* USER CODE BEGIN MEMORYMAP_Init 1 */
-
-  /* USER CODE END MEMORYMAP_Init 1 */
-  /* USER CODE BEGIN MEMORYMAP_Init 2 */
-
-  /* USER CODE END MEMORYMAP_Init 2 */
 
 }
 

@@ -74,7 +74,7 @@
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
-            <RunUserProg2>0</RunUserProg2>
+            <RunUserProg2>1</RunUserProg2>
             <UserProg1Name />
             <UserProg2Name />
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
@@ -1940,6 +1940,7 @@
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0" />
         <targetInfos>
           <targetInfo name="STM32CubeMX_CM4" />
+          <targetInfo name="STM32CubeMX_CM7" />
           <targetInfo name="STM32CubeMX_CM7" />
         </targetInfos>
       </component>

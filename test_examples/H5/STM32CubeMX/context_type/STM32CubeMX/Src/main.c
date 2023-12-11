@@ -70,7 +70,6 @@ HCD_HandleTypeDef hhcd_USB_DRD_FS;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_MEMORYMAP_Init(void);
 static void MX_ETH_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_I2C1_Init(void);
@@ -118,7 +117,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_MEMORYMAP_Init();
   MX_ETH_Init();
   MX_FDCAN1_Init();
   MX_I2C1_Init();
@@ -482,27 +480,6 @@ static void MX_USART11_Init(void)
   /* USER CODE BEGIN USART11_Init 2 */
 
   /* USER CODE END USART11_Init 2 */
-
-}
-
-/**
-  * @brief MEMORYMAP Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_MEMORYMAP_Init(void)
-{
-
-  /* USER CODE BEGIN MEMORYMAP_Init 0 */
-
-  /* USER CODE END MEMORYMAP_Init 0 */
-
-  /* USER CODE BEGIN MEMORYMAP_Init 1 */
-
-  /* USER CODE END MEMORYMAP_Init 1 */
-  /* USER CODE BEGIN MEMORYMAP_Init 2 */
-
-  /* USER CODE END MEMORYMAP_Init 2 */
 
 }
 

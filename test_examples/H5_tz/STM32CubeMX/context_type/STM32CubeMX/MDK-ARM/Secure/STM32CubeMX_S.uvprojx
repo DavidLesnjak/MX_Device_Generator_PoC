@@ -76,7 +76,7 @@
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
-            <RunUserProg2>0</RunUserProg2>
+            <RunUserProg2>1</RunUserProg2>
             <UserProg1Name />
             <UserProg2Name />
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
@@ -334,7 +334,7 @@
               <MiscControls />
               <Define>USE_HAL_DRIVER,STM32H573xx</Define>
               <Undefine />
-              <IncludePath>../../Secure/Inc;../../Secure_nsclib;../../Drivers/STM32H5xx_HAL_Driver/Inc;../../Drivers/CMSIS/Device/ST/STM32H5xx/Include;../../Drivers/STM32H5xx_HAL_Driver/Inc/Legacy;../../Drivers/CMSIS/Include;../../Drivers/STM32H5xx_HAL_Driver/Inc;../../Drivers/CMSIS/Device/ST/STM32H5xx/Include;../../Drivers/STM32H5xx_HAL_Driver/Inc/Legacy;../../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../../Secure/Inc;../../Secure_nsclib;../../Drivers/STM32H5xx_HAL_Driver/Inc;../../Drivers/CMSIS/Device/ST/STM32H5xx/Include;../../Drivers/STM32H5xx_HAL_Driver/Inc/Legacy;../../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
