@@ -105,11 +105,11 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     PC4     ------> ADC1_IN14
     PC5     ------> ADC1_IN15
     */
-    GPIO_InitStruct.Pin = IDD_Measurement_Pin;
+    GPIO_InitStruct.Pin = test_IDD_Measurement_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    HAL_GPIO_Init(IDD_Measurement_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(test_IDD_Measurement_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = Potentiometer_Pin|VBAT_Voltage_OUT_Pin;
+    GPIO_InitStruct.Pin = test_Potentiometer_Pin|test_VBAT_Voltage_OUT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -141,9 +141,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     PC4     ------> ADC1_IN14
     PC5     ------> ADC1_IN15
     */
-    HAL_GPIO_DeInit(IDD_Measurement_GPIO_Port, IDD_Measurement_Pin);
+    HAL_GPIO_DeInit(test_IDD_Measurement_GPIO_Port, test_IDD_Measurement_Pin);
 
-    HAL_GPIO_DeInit(GPIOC, Potentiometer_Pin|VBAT_Voltage_OUT_Pin);
+    HAL_GPIO_DeInit(GPIOC, test_Potentiometer_Pin|test_VBAT_Voltage_OUT_Pin);
 
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
@@ -174,15 +174,15 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
     PD0     ------> CAN1_RX
     PD1     ------> CAN1_TX
     */
-    GPIO_InitStruct.Pin = CAN1_RX_Pin;
+    GPIO_InitStruct.Pin = test_CAN1_RX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(CAN1_RX_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(test_CAN1_RX_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = CAN1_TX_Pin;
+    GPIO_InitStruct.Pin = test_CAN1_TX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(CAN1_TX_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(test_CAN1_TX_GPIO_Port, &GPIO_InitStruct);
 
     __HAL_AFIO_REMAP_CAN1_3();
 
@@ -213,7 +213,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
     PD0     ------> CAN1_RX
     PD1     ------> CAN1_TX
     */
-    HAL_GPIO_DeInit(GPIOD, CAN1_RX_Pin|CAN1_TX_Pin);
+    HAL_GPIO_DeInit(GPIOD, test_CAN1_RX_Pin|test_CAN1_TX_Pin);
 
   /* USER CODE BEGIN CAN1_MspDeInit 1 */
 
@@ -267,7 +267,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = MII_CRS_Pin|MII_RX_CLK_Pin|MII_MDIO_Pin|MII_COL_Pin;
+    GPIO_InitStruct.Pin = test_MII_CRS_Pin|test_MII_RX_CLK_Pin|test_MII_MDIO_Pin|Test_MII_COL_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -277,7 +277,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = MII_TX_EN_Pin|MII_TXD0_I2S_CMD_Pin|MII_TXD1_I2S_CK_Pin|MII_TXD3_Pin;
+    GPIO_InitStruct.Pin = MII_TX_EN_Pin|MII_TXD0_I2S_CMD_Pin|MII_TXD1_I2S_CK_Pin|test_MII_TXD3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -334,10 +334,10 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
     */
     HAL_GPIO_DeInit(GPIOC, MII_MDC_Pin|MII_TXD2_Pin|MII_TX_CLK_Pin);
 
-    HAL_GPIO_DeInit(GPIOA, MII_CRS_Pin|MII_RX_CLK_Pin|MII_MDIO_Pin|MII_COL_Pin);
+    HAL_GPIO_DeInit(GPIOA, test_MII_CRS_Pin|test_MII_RX_CLK_Pin|test_MII_MDIO_Pin|Test_MII_COL_Pin);
 
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10|MII_TX_EN_Pin|MII_TXD0_I2S_CMD_Pin|MII_TXD1_I2S_CK_Pin
-                          |MII_TXD3_Pin);
+                          |test_MII_TXD3_Pin);
 
     HAL_GPIO_DeInit(GPIOD, MII_RX_DV_Pin|MII_RXD0_Pin|MII_RXD1_Pin|MII_RXD2_Pin
                           |MII_RXD3_Pin);
@@ -369,7 +369,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     PB6     ------> I2C1_SCL
     PB7     ------> I2C1_SDA
     */
-    GPIO_InitStruct.Pin = I2C1_SCK_Pin|I2C1_SDA_Pin;
+    GPIO_InitStruct.Pin = test_I2C1_SCK_Pin|test_I2C1_SDA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -403,9 +403,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
     PB6     ------> I2C1_SCL
     PB7     ------> I2C1_SDA
     */
-    HAL_GPIO_DeInit(I2C1_SCK_GPIO_Port, I2C1_SCK_Pin);
+    HAL_GPIO_DeInit(test_I2C1_SCK_GPIO_Port, test_I2C1_SCK_Pin);
 
-    HAL_GPIO_DeInit(I2C1_SDA_GPIO_Port, I2C1_SDA_Pin);
+    HAL_GPIO_DeInit(test_I2C1_SDA_GPIO_Port, test_I2C1_SDA_Pin);
 
   /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
@@ -484,15 +484,15 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     PC11     ------> SPI3_MISO
     PC12     ------> SPI3_MOSI
     */
-    GPIO_InitStruct.Pin = SPI3_SCK_Pin|SPI3_MOSI_Pin;
+    GPIO_InitStruct.Pin = test_SPI3_SCK_Pin|test_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = SPI3_MISO_Pin;
+    GPIO_InitStruct.Pin = test_SPI3_MISO_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(SPI3_MISO_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(test_SPI3_MISO_GPIO_Port, &GPIO_InitStruct);
 
     __HAL_AFIO_REMAP_SPI3_ENABLE();
 
@@ -524,7 +524,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
     PC11     ------> SPI3_MISO
     PC12     ------> SPI3_MOSI
     */
-    HAL_GPIO_DeInit(GPIOC, SPI3_SCK_Pin|SPI3_MISO_Pin|SPI3_MOSI_Pin);
+    HAL_GPIO_DeInit(GPIOC, test_SPI3_SCK_Pin|test_SPI3_MISO_Pin|test_Pin);
 
   /* USER CODE BEGIN SPI3_MspDeInit 1 */
 
@@ -555,7 +555,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     PD5     ------> USART2_TX
     PD6     ------> USART2_RX
     */
-    GPIO_InitStruct.Pin = USART2_TX_Pin|USART2_RX_Pin;
+    GPIO_InitStruct.Pin = test_USART2_TX_Pin|test_USART2_RX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
@@ -589,7 +589,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     PD5     ------> USART2_TX
     PD6     ------> USART2_RX
     */
-    HAL_GPIO_DeInit(GPIOD, USART2_TX_Pin|USART2_RX_Pin);
+    HAL_GPIO_DeInit(GPIOD, test_USART2_TX_Pin|test_USART2_RX_Pin);
 
   /* USER CODE BEGIN USART2_MspDeInit 1 */
 

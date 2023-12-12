@@ -1,6 +1,6 @@
 /******************************************************************************
  * File Name   : MX_Device.h
- * Date        : 11/12/2023 14:20:44
+ * Date        : 12/12/2023 10:12:20
  * Description : STM32Cube MX parameter definitions
  * Note        : This file is generated with a generator out of the
  *               STM32CubeMX project and its generated files (DO NOT EDIT!)
@@ -85,7 +85,7 @@
 #define MX_SDMMC2_D6_GPIO_Mode                 GPIO_MODE_AF_PP
 #define MX_SDMMC2_D6_GPIO_PuPd                 GPIO_NOPULL
 #define MX_SDMMC2_D6_GPIO_Speed                GPIO_SPEED_FREQ_VERY_HIGH
-#define MX_SDMMC2_D6_GPIO_AF                   GPIO_AF11_SDIO2
+#define MX_SDMMC2_D6_GPIO_AF                   GPIO_AF10_SDIO2
 
 /* SDMMC2_D7 */
 #define MX_SDMMC2_D7_Pin                       PC7
