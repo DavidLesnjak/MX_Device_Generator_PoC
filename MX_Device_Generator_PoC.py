@@ -34,8 +34,26 @@ def get_digit_at_end (str):
     for i in range(len(str) - 1, -1, -1):
         if str[i].isdigit():
             digit = str[i:]
-
     return digit
+
+# Replace special chars
+def replace_special_chars(text, ch):
+    out_text = ""
+    special_characters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '-', '_', '[', ']', '{', '}', ';', ':', ',', '.', '?', '/', '\\', '|', '~', '`', '"', "'", '<', '>', ' ']
+    for i in special_characters:
+        text = text.replace(i, ch)
+
+    # Replace multi "_" with a single "_"
+    for ch in text:
+        if ch == "_":
+            if out_text != "":
+                if out_text[-1] != "_":
+                    out_text += "_"
+            else:
+                out_text += ch
+        else:
+            out_text += ch
+    return out_text
 
 
 # Get virtual mode
@@ -50,12 +68,10 @@ def get_virtual_mode(f_ioc, peripheral):
                 vmode = line.split("=")[1]
     except Exception as e:
         sys.exit(f"Error: {e}")
-
     return vmode
 
 # Get pin extended configuration
 def get_pin_configuration (f_msp, peripheral, pin, label):
-    peripheral_root = ""
     info_empty = {}
     info = {
         "Pin"       : "",
@@ -70,7 +86,6 @@ def get_pin_configuration (f_msp, peripheral, pin, label):
         f_msp.seek(0)
         for p in PERIPHERALS:
             if peripheral.find(p) == 0:
-                peripheral_root = p
                 break
 
         pin_num = get_digit_at_end(pin)
@@ -92,7 +107,7 @@ def get_pin_configuration (f_msp, peripheral, pin, label):
 
             if valid_section == True:
                 if line.find("HAL_GPIO_Init") != -1:
-                    if line.find(gpio_port) != -1 or line.find(f"{label}_GPIO_Port"):
+                    if line.find(gpio_port) != -1 or line.find(f"{label}_GPIO_Port") != -1:
                         values = info["Pin"].split("|")
                         for val in values:
                             val = val.lstrip().rstrip()
@@ -145,7 +160,8 @@ def get_pins(f_ioc, f_msp, peripheral):
             line = line.rstrip()
             for pin in pins_name:
                 if line.find(f"{pin}.GPIO_Label") != -1:
-                    value = line.split("=")[1].lstrip().split(" ")[0]
+                    value = line.split("=")[1].lstrip().split("[")[0].rstrip()
+                    value = replace_special_chars(value, "_")
                     pins_label[pin] = value
 
         # Get additional information for the pin
@@ -306,7 +322,8 @@ def mx_device_write_peripheral_cfg (f_mx_device, peripheral, vmode, pins):
                 str += f"\n/* {pin} */\n"
                 str += create_define(f"{pin}_Pin", pins[pin][0]) + "\n"
                 for pin_info in pins[pin][1]:
-                    str += create_define(f"{pin}_{pin_define_name[pin_info]}", pins[pin][1][pin_info]) + "\n"
+                    if pins[pin][1][pin_info] != "":
+                        str += create_define(f"{pin}_{pin_define_name[pin_info]}", pins[pin][1][pin_info]) + "\n"
         f_mx_device.write(str)
 
     except Exception as e:
