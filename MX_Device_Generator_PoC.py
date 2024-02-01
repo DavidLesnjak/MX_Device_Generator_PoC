@@ -56,6 +56,39 @@ def replace_special_chars(text, ch):
     return out_text
 
 
+# Get i2c info (filter, coefficients)
+def get_i2c_info(f_main, peripheral):
+    info = {}
+    try:
+        if peripheral.startswith("I2C"):
+            f_main.seek(0)
+            section_found = False
+
+            for line in f_main.readlines():
+                if section_found == False:
+                    if (line.startswith(f"static void MX_{peripheral}_Init") and
+                        line.find(";") == -1):
+                        # Start of section: static void MX_I2Cx_Init
+                        section_found = True
+
+                else:
+                    # Parse section: static void MX_I2Cx_Init
+                    if line.startswith("}"):
+                        # End of section: static void MX_I2Cx_Init
+                        break
+                    if line.find("HAL_I2CEx_ConfigAnalogFilter") != -1:
+                        if line.find("I2C_ANALOGFILTER_ENABLE") != -1:
+                            info["ANF_ENABLE"] = "1"
+                        else:
+                            info["ANF_ENABLE"] = "0"
+                    if line.find("HAL_I2CEx_ConfigDigitalFilter") != -1:
+                        dnf = line.split(",")[1].split(")")[0].rstrip().lstrip()
+                        info["DNF"] = dnf
+
+    except Exception as e:
+        sys.exit(f"Error: {e}")
+    return info
+
 # Get virtual mode
 def get_virtual_mode(f_ioc, peripheral):
     vmode = ""
@@ -297,7 +330,7 @@ def mx_device_write_header (f_mx_device, file_name):
         sys.exit(f"Error: {e}")
 
 # Write peripheral configuration to mx device
-def mx_device_write_peripheral_cfg (f_mx_device, peripheral, vmode, pins):
+def mx_device_write_peripheral_cfg (f_mx_device, peripheral, vmode, i2c_info, pins):
     pin_define_name = {
         "Pin"       : "GPIO_Pin",
         "Port"      : "GPIOx",
@@ -311,6 +344,13 @@ def mx_device_write_peripheral_cfg (f_mx_device, peripheral, vmode, pins):
         str = str.ljust(49)
         str += "-----------------------------*/\n"
         str += create_define(peripheral, "1") + "\n\n"
+
+        if i2c_info:
+            str += "/* Filter Settings */\n"
+            for item in i2c_info:
+                str += create_define(f"{peripheral}_{item}", i2c_info[item]) + "\n"
+            str += "\n"
+
         if vmode != "":
             str += "/* Virtual mode */\n"
             str += create_define(f"{peripheral}_VM", vmode) + "\n"
@@ -374,12 +414,15 @@ def main():
                     return
 
 
-                # Open hal_msp
-                msp = path.join(work_dir_abs, context_folder)
-                msp = path.join(msp, get_main_location(f_ioc))
-                msp = path.join(msp, msp_name)
+                # Main folder
+                main_folder = path.join(work_dir_abs, context_folder)
+                main_folder = path.join(main_folder, get_main_location(f_ioc))
 
-                f_msp = open(msp, "r")
+                # Open hal_msp
+                f_main = open(path.join(main_folder, "main.c"), "r")
+
+                # Open hal_msp
+                f_msp = open(path.join(main_folder, msp_name), "r")
 
                 # Open MX_Device.h
                 f_name = "MX_Device.h"
@@ -399,20 +442,23 @@ def main():
             peripherals =  get_peripherals(f_ioc, context)
             for peripheral in peripherals:
                 vmode = get_virtual_mode(f_ioc, peripheral)
+                i2c_info = get_i2c_info(f_main, peripheral)
                 pins = get_pins(f_ioc, f_msp, peripheral)
-                mx_device_write_peripheral_cfg(f_mx_device, peripheral, vmode, pins)
+                mx_device_write_peripheral_cfg(f_mx_device, peripheral, vmode, i2c_info, pins)
 
             f_mx_device.write("\n#endif  /* __MX_DEVICE_H */\n")
             f_mx_device.close()
 
     else:
         try:
-            # Open hal_msp
-            msp_folder = get_main_location(f_ioc)
-            msp = path.join(work_dir_abs, get_main_location(f_ioc))
-            msp = path.join(msp, msp_name)
+            # Main folder
+            main_folder = path.join(work_dir_abs, get_main_location(f_ioc))
 
-            f_msp = open(msp, "r")
+            # Open hal_msp
+            f_main = open(path.join(main_folder, "main.c"), "r")
+
+            # Open hal_msp
+            f_msp = open(path.join(main_folder, msp_name), "r")
 
             # Open MX_Device.h
             f_name = "MX_Device.h"
@@ -429,8 +475,9 @@ def main():
         peripherals =  get_peripherals(f_ioc, [])
         for peripheral in peripherals:
             vmode = get_virtual_mode(f_ioc, peripheral)
+            i2c_info = get_i2c_info(f_main, peripheral)
             pins = get_pins(f_ioc, f_msp, peripheral)
-            mx_device_write_peripheral_cfg(f_mx_device, peripheral, vmode, pins)
+            mx_device_write_peripheral_cfg(f_mx_device, peripheral, vmode, i2c_info, pins)
 
         f_mx_device.write("\n#endif  /* __MX_DEVICE_H */\n")
         f_mx_device.close()
